@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Desafio contra IA</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>🤖 Desafio contra IA</h1>
+        <p>Você consegue vencer a inteligência artificial?</p>
+    </header>
+
+    <main>
+
+        <section class="jogo">
+
+            <h2>Pedra, Papel ou Tesoura</h2>
+
+            <p class="descricao">
+                Escolha sua jogada e tente derrotar a IA!
+            </p>
+
+            <div class="placar">
+
+                <div class="jogador">
+                    <span>👤 Você</span>
+                    <h2 id="pontosJogador">0</h2>
+                </div>
+
+                <div class="versus">VS</div>
+
+                <div class="computador">
+                    <span>🤖 IA</span>
+                    <h2 id="pontosIA">0</h2>
+                </div>
+
+            </div>
+
+            <div class="batalha">
+
+                <div class="lado">
+                    <h3>Você</h3>
+                    <div class="escolha" id="escolhaJogador">❔</div>
+                </div>
+
+                <div class="lado">
+                    <h3>Inteligência Artificial</h3>
+                    <div class="escolha" id="escolhaIA">🤖</div>
+                </div>
+
+            </div>
+
+            <h3 class="resultado" id="resultado">
+                Faça sua primeira jogada!
+            </h3>
+
+            <p id="mensagemIA">
+                A IA está esperando você...
+            </p>
+
+            <div class="opcoes">
+
+                <button onclick="jogar('pedra')">
+                    ✊ Pedra
+                </button>
+
+                <button onclick="jogar('papel')">
+                    ✋ Papel
+                </button>
+
+                <button onclick="jogar('tesoura')">
+                    ✌️ Tesoura
+                </button>
+
+            </div>
+
+            <div class="estatisticas">
+
+                <h3>📊 Estatísticas</h3>
+
+                <p>Vitórias: <strong id="vitorias">0</strong></p>
+
+                <p>Derrotas: <strong id="derrotas">0</strong></p>
+
+                <p>Empates: <strong id="empates">0</strong></p>
+
+                <p>Jogadas analisadas pela IA:
+                    <strong id="analisadas">0</strong>
+                </p>
+
+            </div>
+
+            <button class="reiniciar" onclick="reiniciar()">
+                🔄 Reiniciar jogo
+            </button>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Desafio contra IA © 2026</p>
+    </footer>
+
+    <script>
+
+        let pontosJogador = 0;
+        let pontosIA = 0;
+
+        let vitorias = 0;
+        let derrotas = 0;
+        let empates = 0;
+
+        let historico = [];
+
+        let jogando = false;
+
+        const emojis = {
+            pedra: "✊",
+            papel: "✋",
+            tesoura: "✌️"
+        };
+
+        // A IA ANALISA AS JOGADAS DO JOGADOR
+
+        function escolherJogadaIA() {
+
+            if (historico.length < 2) {
+
+                const opcoes = ["pedra", "papel", "tesoura"];
+
+                return opcoes[
+                    Math.floor(Math.random() * opcoes.length)
+                ];
+            }
+
+            const frequencia = {
+                pedra: 0,
+                papel: 0,
+                tesoura: 0
+            };
+
+            historico.forEach(jogada => {
+                frequencia[jogada]++;
+            });
+
+            let maisEscolhida = "pedra";
+
+            for (let jogada in frequencia) {
+
+                if (frequencia[jogada] > frequencia[maisEscolhida]) {
+                    maisEscolhida = jogada;
+                }
+
+            }
+
+            // A IA tenta escolher a jogada que vence
+            // a escolha mais frequente do jogador.
+
+            const contra = {
+                pedra: "papel",
+                papel: "tesoura",
+                tesoura: "pedra"
+            };
+
+            // Às vezes a IA faz uma jogada aleatória
+            if (Math.random() < 0.25) {
+
+                const opcoes = ["pedra", "papel", "tesoura"];
+
+                return opcoes[
+                    Math.floor(Math.random() * opcoes.length)
+                ];
+
+            }
+
+            return contra[maisEscolhida];
+        }
+
+        // REALIZAR JOGADA
+
+        function jogar(escolha) {
+
+            if (jogando) return;
+
+            jogando = true;
+
+            document.getElementById("resultado").textContent =
+                "A IA está pensando...";
+
+            document.getElementById("mensagemIA").textContent =
+                "Analisando seus movimentos... 🤖";
+
+            document.getElementById("escolhaJogador").textContent =
+                emojis[escolha];
+
+            document.getElementById("escolhaIA").textContent = "🤔";
+
+            setTimeout(() => {
+
+                const escolhaIA = escolherJogadaIA();
+
+                historico.push(escolha);
+
+                document.getElementById("escolhaIA").textContent =
+                    emojis[escolhaIA];
+
+                verificarResultado(escolha, escolhaIA);
+
+                atualizarPlacar();
+
+                jogando = false;
+
+            }, 800);
+
+        }
+
+        // VERIFICAR QUEM GANHOU
+
+        function verificarResultado(jogador, ia) {
+
+            let resultado = "";
+
+            if (jogador === ia) {
+
+                resultado = "🤝 Empate!";
+                empates++;
+
+            } else if (
+
+                (jogador === "pedra" && ia === "tesoura") ||
+                (jogador === "papel" && ia === "pedra") ||
+                (jogador === "tesoura" && ia === "papel")
+
+            ) {
+
+                resultado = "🎉 Você venceu!";
+                pontosJogador++;
+                vitorias++;
+
+            } else {
+
+                resultado = "🤖 A IA venceu!";
+                pontosIA++;
+                derrotas++;
+
+            }
+
+            document.getElementById("resultado").textContent =
+                resultado;
+
+            document.getElementById("mensagemIA").textContent =
+                historico.length >= 3
+                ? "Estou aprendendo seus movimentos! 🧠"
+                : "Ainda estou analisando suas jogadas...";
+
+        }
+
+        // ATUALIZAR PLACAR
+
+        function atualizarPlacar() {
+
+            document.getElementById("pontosJogador").textContent =
+                pontosJogador;
+
+            document.getElementById("pontosIA").textContent =
+                pontosIA;
+
+            document.getElementById("vitorias").textContent =
+                vitorias;
+
+            document.getElementById("derrotas").textContent =
+                derrotas;
+
+            document.getElementById("empates").textContent =
+                empates;
+
+            document.getElementById("analisadas").textContent =
+                historico.length;
+
+        }
+
+        // REINICIAR JOGO
+
+        function reiniciar() {
+
+            pontosJogador = 0;
+            pontosIA = 0;
+
+            vitorias = 0;
+            derrotas = 0;
+            empates = 0;
+
+            historico = [];
+
+            document.getElementById("escolhaJogador").textContent = "❔";
+
+            document.getElementById("escolhaIA").textContent = "🤖";
+
+            document.getElementById("resultado").textContent =
+                "Faça sua primeira jogada!";
+
+            document.getElementById("mensagemIA").textContent =
+                "A IA está esperando você...";
+
+            atualizarPlacar();
+
+        }
+
+    </script>
+
+</body>
+</html>
